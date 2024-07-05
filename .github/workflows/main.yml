@@ -1,0 +1,42 @@
+name: Build Telegram iOS
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: macos-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: 2.7
+
+      - name: Install Fastlane
+        run: gem install fastlane
+
+      - name: Set up Xcode
+        uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: '13.2.1'
+
+      - name: Install dependencies
+        run: bundle install
+
+      - name: Build iOS app
+        run: fastlane gym --scheme "Telegram" --output_directory ./build --output_name Telegram.ipa
+
+      - name: Archive IPA
+        uses: actions/upload-artifact@v2
+        with:
+          name: Telegram.ipa
+          path: ./build/Telegram.ipa
